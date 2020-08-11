@@ -33,7 +33,6 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      favicon: 'src/assets/favicon.ico',
       template: 'src/index.html'
     })
   ],

@@ -13,4 +13,12 @@ const animate = (fn) => {
   // requestAnimationFrame(animate)
   // context.clearRect(0, 0, canvas.width, canvas.height)
 }
-animate(console.log('animate'));
+const log = () =>{
+  let date = new Date
+
+} 
+const log2 = () => console.log(new Date)
+
+animate(log)()
+animate(log2)()
+
