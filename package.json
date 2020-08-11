@@ -1,0 +1,22 @@
+{
+  "name": "phys",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoacimNilsen/physics-game.git"
+  },
+  "keywords": [
+    "game"
+  ],
+  "author": "Jocke Musa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoacimNilsen/physics-game/issues"
+  },
+  "homepage": "https://github.com/JoacimNilsen/physics-game#readme"
+}
