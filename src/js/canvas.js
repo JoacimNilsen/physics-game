@@ -10,7 +10,7 @@ const animate = (fn) => {
     fn()
   } 
   return cb
-  // requestAnimationFrame(animate)
-  // context.clearRect(0, 0, canvas.width, canvas.height)
+
 }
-animate(console.log('animate'));
+
+animate();
