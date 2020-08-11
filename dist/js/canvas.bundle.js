@@ -90,13 +90,51 @@
 /*!**************************!*\
   !*** ./src/js/canvas.js ***!
   \**************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var canvas = document.querySelector('canvas');
-var context = canvas.getContext('2d');
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _platform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./platform */ "./src/js/platform.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+var canvas = document.querySelector('canvas'),
+    context = canvas.getContext('2d'),
+    ground = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(innerHeight / 1.5);
 canvas.width = innerWidth;
 canvas.height = innerHeight;
+
+var makePlatform = function makePlatform() {
+  ground.map(function (point, index) {
+    var _point = _slicedToArray(point, 2),
+        x = _point[0],
+        y = _point[1];
+
+    if (index === 0) {
+      context.beginPath();
+      context.moveTo(x, y);
+      return;
+    }
+
+    context.lineTo(calculateWidth(canvas.width, x) * index, y);
+    context.stroke();
+  });
+};
+
+var calculateWidth = function calculateWidth(totalwidth, partials) {
+  return totalwidth / partials;
+};
 
 var animate = function animate(fn) {
   var cb = function cb() {
@@ -104,10 +142,40 @@ var animate = function animate(fn) {
     fn();
   };
 
-  return cb;
+  return cb; // requestAnimationFrame(animate)
+  // context.clearRect(0, 0, canvas.width, canvas.height)
 };
 
-animate();
+var log = function log() {
+  var date = new Date();
+};
+
+var log2 = function log2() {
+  console.log(context);
+};
+
+animate(makePlatform)();
+
+/***/ }),
+
+/***/ "./src/js/platform.js":
+/*!****************************!*\
+  !*** ./src/js/platform.js ***!
+  \****************************/
+/*! exports provided: platform */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "platform", function() { return platform; });
+var platform = function platform() {
+  var height = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  var points = Array(40).fill(true);
+  return points.map(function (point, index) {
+    return [index + 1, height];
+  });
+};
 
 /***/ })
 
