@@ -2,9 +2,11 @@
   "name": "phys",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "webpack.config.js",
   "scripts": {
-    "test": "test"
+    "dev": "webpack --config webpack.config.js",
+    "start": "webpack --config webpack.config.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
