@@ -1,24 +1,44 @@
-const canvas = document.querySelector('canvas');
-const context = canvas.getContext('2d');
+import { platform } from './platform'
 
+const
+  canvas = document.querySelector('canvas'),
+  context = canvas.getContext('2d'),
+  ground = platform(innerHeight /1.5)
 canvas.width = innerWidth
 canvas.height = innerHeight
+const makePlatform = () => {
+  ground.map((point, index) => {
+    let [x, y] = point
+    if (index === 0) {
+      context.beginPath();
+      context.moveTo(x, y)
+      return
+    }
+    context.lineTo(calculateWidth(canvas.width, x) * index, y)
+    context.stroke()
+  })
+}
+
+
+const calculateWidth = (totalwidth, partials) => totalwidth / partials
+
+
 
 const animate = (fn) => {
   let cb = () => {
     requestAnimationFrame(cb)
     fn()
-  } 
+  }
   return cb
   // requestAnimationFrame(animate)
   // context.clearRect(0, 0, canvas.width, canvas.height)
 }
-const log = () =>{
+const log = () => {
   let date = new Date
 
-} 
-const log2 = () => console.log(new Date)
+}
+const log2 = () => { console.log(context) }
 
-animate(log)()
-animate(log2)()
+animate(makePlatform)()
+
 
