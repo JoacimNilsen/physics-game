@@ -96,6 +96,7 @@
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _platform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./platform */ "./src/js/platform.js");
+/* harmony import */ var _particle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./particle */ "./src/js/particle.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -109,9 +110,11 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
+
 var canvas = document.querySelector('canvas'),
     context = canvas.getContext('2d'),
-    ground = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(innerHeight / 1.5);
+    ground = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(innerHeight / 1.5),
+    startingPosition = [100, ground[0][1] - 17];
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -136,14 +139,23 @@ var calculateWidth = function calculateWidth(totalwidth, partials) {
   return totalwidth / partials;
 };
 
+var ball = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"](startingPosition);
+
+var renderBall = function renderBall() {
+  context.beginPath();
+  context.arc(ball.position[0], ball.position[1], 15, 0, Math.PI * 2, false);
+  context.fill();
+  context.stroke();
+  context.closePath();
+};
+
 var animate = function animate(fn) {
   var cb = function cb() {
     requestAnimationFrame(cb);
     fn();
   };
 
-  return cb; // requestAnimationFrame(animate)
-  // context.clearRect(0, 0, canvas.width, canvas.height)
+  return cb;
 };
 
 var log = function log() {
@@ -155,6 +167,32 @@ var log2 = function log2() {
 };
 
 animate(makePlatform)();
+animate(renderBall)();
+
+/***/ }),
+
+/***/ "./src/js/particle.js":
+/*!****************************!*\
+  !*** ./src/js/particle.js ***!
+  \****************************/
+/*! exports provided: particle */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "particle", function() { return particle; });
+var particle = function particle() {
+  var position = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [0, 0];
+  var velocity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [0, 0];
+  var accel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0];
+  var mass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+  return {
+    position: position,
+    velocity: velocity,
+    accel: accel,
+    mass: mass
+  };
+};
 
 /***/ }),
 
