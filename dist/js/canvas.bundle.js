@@ -98,6 +98,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _platform__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./platform */ "./src/js/platform.js");
 /* harmony import */ var _particle__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./particle */ "./src/js/particle.js");
 /* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils */ "./src/js/utils.js");
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -118,9 +124,11 @@ var canvas = document.querySelector('canvas'),
     ground = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(innerHeight / 1.5, 0, 40),
     goal = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(100, 500, 10),
     startingPosition = [100, ground[0][1] - 30],
-    ball = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"](startingPosition);
-ball.mass = 30;
-canvas.width = innerWidth;
+    sling = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"]([50, 50]),
+    gravity = 1.5;
+sling.mass = 15;
+var ball = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"](startingPosition);
+ball.mass = 30, canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 var renderPlatform = function renderPlatform(platform, width) {
@@ -135,18 +143,45 @@ var renderPlatform = function renderPlatform(platform, width) {
       return;
     }
 
-    var nextPoint = x + Object(_utils__WEBPACK_IMPORTED_MODULE_2__["calculateWidth"])(width, platform.length) * index;
+    var nextPoint = x + Object(_utils__WEBPACK_IMPORTED_MODULE_2__["calculateWidth"])(width, platform.length, index);
     context.lineTo(nextPoint, y);
     context.stroke();
   });
 };
 
-var renderBall = function renderBall() {
+var renderObject = function renderObject(obj) {
   context.beginPath();
-  context.arc(ball.position[0], ball.position[1], ball.mass, 0, Math.PI * 2, false);
+  context.arc(obj.position[0], obj.position[1], obj.mass, 0, Math.PI * 2, false);
   context.fill();
   context.stroke();
   context.closePath();
+}; //update the position of the object by adding the velocity to the current position
+
+
+var updatePosition = function updatePosition(p, gravity) {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+
+  var _ref = [p.position, p.velocity, p.accel],
+      _ref$ = _slicedToArray(_ref[0], 2),
+      px = _ref$[0],
+      py = _ref$[1],
+      _ref$2 = _slicedToArray(_ref[1], 2),
+      vx = _ref$2[0],
+      vy = _ref$2[1],
+      _ref$3 = _slicedToArray(_ref[2], 2),
+      ax = _ref$3[0],
+      ay = _ref$3[1];
+
+  vy = vy + ay + gravity;
+  var position = [px + vx, py + vy],
+      velocity = [vx, vy],
+      accel = [0, 0];
+  console.log(p, vy);
+  return _objectSpread(_objectSpread({}, p), {}, {
+    position: position,
+    velocity: velocity,
+    accel: accel
+  });
 };
 
 var animate = function animate(fn) {
@@ -165,9 +200,14 @@ animate(function () {
   return renderPlatform(goal, 200);
 })();
 animate(function () {
-  return Object(_utils__WEBPACK_IMPORTED_MODULE_2__["updatePosition"])(ball);
+  return ball = updatePosition(ball, gravity, context);
 })();
-animate(renderBall)();
+animate(function () {
+  return renderObject(ball);
+})();
+animate(function () {
+  return renderObject(sling);
+})();
 
 /***/ }),
 
@@ -222,14 +262,20 @@ var platform = function platform() {
 /*!*************************!*\
   !*** ./src/js/utils.js ***!
   \*************************/
-/*! exports provided: calculateDistance, calculateWidth, updatePosition */
+/*! exports provided: calculateDistance, calculateWidth, degToRad, radToDeg, magnitude, normalize, scale, add, applyForce */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateDistance", function() { return calculateDistance; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "calculateWidth", function() { return calculateWidth; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updatePosition", function() { return updatePosition; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "degToRad", function() { return degToRad; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "radToDeg", function() { return radToDeg; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "magnitude", function() { return magnitude; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "normalize", function() { return normalize; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "scale", function() { return scale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "add", function() { return add; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "applyForce", function() { return applyForce; });
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -252,22 +298,48 @@ var calculateDistance = function calculateDistance(x1, y1, x2, y2) {
   var xDist = x2 - x1;
   var yDist = y2 - y1;
   return Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
-};
-var calculateWidth = function calculateWidth(totalwidth, partials) {
-  return totalwidth / partials;
-};
-var updatePosition = function updatePosition(p) {
-  var _ref = [p.position, p.velocity],
-      _ref$ = _slicedToArray(_ref[0], 2),
-      px = _ref$[0],
-      py = _ref$[1],
-      _ref$2 = _slicedToArray(_ref[1], 2),
-      vx = _ref$2[0],
-      vy = _ref$2[1],
-      position = [px + vx, py + vy];
+},
+    //to determine out how wide to make a platform made of x points, we take the required width / points * index+1
+calculateWidth = function calculateWidth(width, sections, index) {
+  return width / sections * (index + 1);
+},
+    degToRad = function degToRad(deg) {
+  return deg * Math.PI / 180;
+},
+    radToDeg = function radToDeg(rad) {
+  return rad * 180 / Math.PI;
+},
+    magnitude = function magnitude(_ref) {
+  var _ref2 = _slicedToArray(_ref, 2),
+      x = _ref2[0],
+      y = _ref2[1];
 
-  return _objectSpread(_objectSpread({}, p), {}, {
-    position: position
+  return Math.sqrt(x * x, y * y);
+},
+    normalize = function normalize(vector) {
+  return scale(vector, 1 / mag(vector) || 1);
+},
+    scale = function scale(_ref3, n) {
+  var _ref4 = _slicedToArray(_ref3, 2),
+      x = _ref4[0],
+      y = _ref4[1];
+
+  return [n * x, n * y];
+},
+    add = function add() {
+  for (var _len = arguments.length, vx = new Array(_len), _key = 0; _key < _len; _key++) {
+    vx[_key] = arguments[_key];
+  }
+
+  return vx.reduce(function (a, v) {
+    return [a[0] + v[0], a[1] + v[1]];
+  }, [0, 0]);
+},
+    applyForce = function applyForce(obj, mass, force) {
+  var accel = obj.accel;
+  accel = add(scale(force, mass), accel);
+  return _objectSpread(_objectSpread({}, obj), {}, {
+    accel: accel
   });
 };
 

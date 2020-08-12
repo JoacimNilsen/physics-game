@@ -1,9 +1,9 @@
 import { platform } from '../platform'
 
 describe('test suite for platform', ()=> {
-    test('should x[0], x[n] should be 1, 40', () => {
+    test('x[0], x[n] should be 1, 40', () => {
         const
-            p = platform(),
+            p = platform(0, 1, 40),
             first_index = 1,
             last_index = 40;
         expect(p[0][0]).toBe(first_index)
