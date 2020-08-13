@@ -1,18 +1,21 @@
 import { platform } from './platform'
 import { particle } from './particle'
-import { calculateWidth, applyForce} from './utils'
+import { calculateWidth, applyForce, calculateDistance} from './utils'
+
 
 const canvas = document.querySelector('canvas'),
       context = canvas.getContext('2d'),
       ground = platform(innerHeight /1.5, 0, 40),
       goal = platform(100, 500, 10),
-      startingPosition = [100, ground[0][1] - 30],
+      startingPosition = [100, ground[0][1] - 200],
       sling = new particle([50, 50]),
-      gravity = 1.5   
-      sling.mass = 15
+      gravity = 1 
 
 let ball = new particle(startingPosition)
-ball.mass = 30,
+
+sling.mass = 15
+ball.mass = 2,
+
       
 canvas.width = innerWidth
 canvas.height = innerHeight
@@ -46,15 +49,34 @@ const renderObject = (obj) => {
     context.closePath()
 }
 
+const detectCollision = p => {
+  ground.forEach(point => {
+    // console.log(p.position, point)
+    if(p.position[1] === point[1]) {
+      let [vx, vy] = p.velocity
+      vy = -vy
+      p = applyForce(p, p.mass, [vx, vy])
+      
+    }
+    
+    // console.log(calculateDistance(p.position+p.mass, point))
+  })
+  return p
+  
+}
+
+// console.log(ball.position, ground[10], calculateDistance(ball.position, ground[0]))
+
   //update the position of the object by adding the velocity to the current position
   const updatePosition = (p, gravity) => {
+    p = detectCollision(p)
     context.clearRect(0, 0, canvas.width, canvas.height)
     let [[px, py], [vx, vy], [ax, ay]] = [p.position, p.velocity, p.accel]
     vy = (vy + ay) + gravity
     let position = [px+vx, py+vy],
-    velocity = [vx, vy],
+        velocity = [vx, vy],
         accel = [0, 0]
-    console.log(p, vy)
+        console.log(velocity)
     return {...p, position, velocity, accel}
   }
 
@@ -68,9 +90,9 @@ const animate = (fn) => {
 }
 
 
+animate(() => ball = updatePosition(ball, gravity))()
 animate(() => renderPlatform(ground, canvas.width))()
 animate( () => renderPlatform(goal, 200))()
-animate(() => ball = updatePosition(ball, gravity, context))()
 animate(()=>renderObject(ball))()
 animate(()=>renderObject(sling))()
 

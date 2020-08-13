@@ -6,5 +6,5 @@ export const platform = (
     ) => {
     return Array(points)
               .fill(true)
-              .map((point, index) => [index+start, height])
+              .map((point, index) => [index+start, height-index])
 }
