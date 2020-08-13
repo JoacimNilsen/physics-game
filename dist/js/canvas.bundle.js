@@ -121,58 +121,67 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 var canvas = document.querySelector('canvas'),
     context = canvas.getContext('2d'),
-    ground = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(innerHeight / 1.5, 0, 40),
+    ground = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(innerHeight / 1.5, 0, 50, 1),
     goal = Object(_platform__WEBPACK_IMPORTED_MODULE_0__["platform"])(100, 500, 10),
-    startingPosition = [100, ground[0][1] - 200],
+    startingPosition = [100, ground.vectors[0][1] - 200],
     sling = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"]([50, 50]),
     gravity = 1;
-var ball = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"](startingPosition);
+var ball = new _particle__WEBPACK_IMPORTED_MODULE_1__["particle"](startingPosition),
+    paths;
 sling.mass = 15;
-ball.mass = 2, canvas.width = innerWidth;
+ball.mass = 1;
+ball.radius = 5;
+canvas.width = innerWidth;
 canvas.height = innerHeight;
 
 var renderPlatform = function renderPlatform(platform, width) {
-  platform.map(function (point, index) {
+  var path = new Path2D();
+  platform.vectors.map(function (point, index) {
     var _point = _slicedToArray(point, 2),
         x = _point[0],
         y = _point[1];
 
     if (index === 0) {
       context.beginPath();
-      context.moveTo(x, y);
+      path.moveTo(x, y);
       return;
     }
 
-    var nextPoint = x + Object(_utils__WEBPACK_IMPORTED_MODULE_2__["calculateWidth"])(width, platform.length, index);
-    context.lineTo(nextPoint, y);
-    context.stroke();
+    var nextPoint = x + Object(_utils__WEBPACK_IMPORTED_MODULE_2__["calculateWidth"])(width, platform.vectors.length, index);
+    path.lineTo(nextPoint, y);
   });
+  context.stroke(path);
+  path.closePath();
+  paths = path;
 };
 
 var renderObject = function renderObject(obj) {
   context.beginPath();
-  context.arc(obj.position[0], obj.position[1], obj.mass, 0, Math.PI * 2, false);
+  context.arc(obj.position[0], obj.position[1], obj.radius, 0, Math.PI * 2, false);
   context.fill();
-  context.stroke();
   context.closePath();
+  context.stroke();
 };
 
 var detectCollision = function detectCollision(p) {
-  ground.forEach(function (point) {
-    // console.log(p.position, point)
+  console.log(context.isPointInPath(p.position[0], p.position[1], "nonzero"));
+  ground.vectors.forEach(function (point) {
+    var _p$velocity = _slicedToArray(p.velocity, 2),
+        vx = _p$velocity[0],
+        vy = _p$velocity[1]; // if(p.position[1]+p.radius*Math.PI > point[1]){
+    //     vy = -gravity
+    //     p = applyForce(p, p.mass, [vx, vy])
+    //     return
+    // } 
+
+
     if (p.position[1] === point[1]) {
-      var _p$velocity = _slicedToArray(p.velocity, 2),
-          vx = _p$velocity[0],
-          vy = _p$velocity[1];
-
-      vy = -vy;
+      vy *= -1;
       p = Object(_utils__WEBPACK_IMPORTED_MODULE_2__["applyForce"])(p, p.mass, [vx, vy]);
-    } // console.log(calculateDistance(p.position+p.mass, point))
-
+    }
   });
   return p;
-}; // console.log(ball.position, ground[10], calculateDistance(ball.position, ground[0]))
-//update the position of the object by adding the velocity to the current position
+}; //update the position of the object by adding the velocity to the current position
 
 
 var updatePosition = function updatePosition(p, gravity) {
@@ -190,11 +199,11 @@ var updatePosition = function updatePosition(p, gravity) {
       ax = _ref$3[0],
       ay = _ref$3[1];
 
-  vy = vy + ay + gravity;
+  vy = vy + ay + 1;
+  vx = vx + ax;
   var position = [px + vx, py + vy],
       velocity = [vx, vy],
       accel = [0, 0];
-  console.log(velocity);
   return _objectSpread(_objectSpread({}, p), {}, {
     position: position,
     velocity: velocity,
@@ -211,15 +220,11 @@ var animate = function animate(fn) {
   return cb;
 };
 
+renderPlatform(ground, canvas.width);
 animate(function () {
-  return ball = updatePosition(ball, gravity);
-})();
-animate(function () {
-  return renderPlatform(ground, canvas.width);
-})();
-animate(function () {
-  return renderPlatform(goal, 200);
-})();
+  return ball = updatePosition(ball, ground.mass);
+})(); // animate( () => renderPlatform(goal, 200))()
+
 animate(function () {
   return renderObject(ball);
 })();
@@ -244,6 +249,7 @@ var particle = function particle() {
   var velocity = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [0, 0];
   var accel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [0, 0];
   var mass = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+  var radius = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
   return {
     position: position,
     velocity: velocity,
@@ -268,10 +274,15 @@ var platform = function platform() {
   var height = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
   var start = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
   var points = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-  var level = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
-  return Array(points).fill(true).map(function (point, index) {
+  var mass = arguments.length > 3 ? arguments[3] : undefined;
+  var level = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+  var vectors = Array(points).fill(true).map(function (point, index) {
     return [index + start, height - index];
   });
+  return {
+    vectors: vectors,
+    mass: mass
+  };
 };
 
 /***/ }),
@@ -280,7 +291,7 @@ var platform = function platform() {
 /*!*************************!*\
   !*** ./src/js/utils.js ***!
   \*************************/
-/*! exports provided: calculateDistance, calculateWidth, degToRad, radToDeg, magnitude, normalize, scale, add, applyForce */
+/*! exports provided: calculateDistance, calculateWidth, degToRad, radToDeg, magnitude, normalize, scale, dot, add, applyForce */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -292,6 +303,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "magnitude", function() { return magnitude; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "normalize", function() { return normalize; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "scale", function() { return scale; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "dot", function() { return dot; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "add", function() { return add; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "applyForce", function() { return applyForce; });
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -329,21 +341,24 @@ var calculateDistance = function calculateDistance(_ref, _ref2) {
 calculateWidth = function calculateWidth(width, sections, index) {
   return width / sections * (index + 1);
 },
-    degToRad = function degToRad(deg) {
+    //convert degrees to radians and the other way around
+degToRad = function degToRad(deg) {
   return deg * Math.PI / 180;
 },
     radToDeg = function radToDeg(rad) {
   return rad * 180 / Math.PI;
 },
-    magnitude = function magnitude(_ref5) {
+    //get the length of a vector
+magnitude = function magnitude(_ref5) {
   var _ref6 = _slicedToArray(_ref5, 2),
       x = _ref6[0],
       y = _ref6[1];
 
   return Math.sqrt(x * x, y * y);
 },
-    normalize = function normalize(vector) {
-  return scale(vector, 1 / mag(vector) || 1);
+    //get the direction of a vector
+normalize = function normalize(vector) {
+  return scale(vector, 1 / magnitude(vector) || 1);
 },
     scale = function scale(_ref7, n) {
   var _ref8 = _slicedToArray(_ref7, 2),
@@ -351,6 +366,17 @@ calculateWidth = function calculateWidth(width, sections, index) {
       y = _ref8[1];
 
   return [n * x, n * y];
+},
+    dot = function dot(_ref9, _ref10) {
+  var _ref11 = _slicedToArray(_ref9, 2),
+      x1 = _ref11[0],
+      y1 = _ref11[1];
+
+  var _ref12 = _slicedToArray(_ref10, 2),
+      x2 = _ref12[0],
+      y2 = _ref12[1];
+
+  return x1 * x2 + y1 * y2;
 },
     add = function add() {
   for (var _len = arguments.length, vx = new Array(_len), _key = 0; _key < _len; _key++) {

@@ -9,16 +9,27 @@ export const
   calculateWidth = (width, sections, index) =>
     (width / sections) * (index+1),
 
-  degToRad = deg => deg * Math.PI / 180,
+  //convert degrees to radians and the other way around
+  degToRad = deg => 
+      deg * Math.PI / 180,
 
-  radToDeg = rad => rad * 180 / Math.PI,
+  radToDeg = rad => 
+      rad * 180 / Math.PI,
 
-  magnitude = ([x, y]) => Math.sqrt(x*x, y*y),
+  //get the length of a vector
+  magnitude = ([x, y]) =>
+      Math.sqrt(x*x, y*y),
 
-  normalize = vector => scale(vector, 1/mag(vector)||1),
+  //get the direction of a vector
+  normalize = vector =>
+      scale(vector, 1/magnitude(vector)||1),
 
+  
   scale = ([x,y], n) =>
       [ n*x, n*y ],
+
+  dot = ([x1, y1], [x2, y2]) =>
+      x1*x2 + y1*y2,
 
   add = (...vx) => vx.reduce((a, v) => 
       [a[0]+v[0], a[1]+v[1]], [0, 0]),
